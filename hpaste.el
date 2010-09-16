@@ -103,13 +103,14 @@ For more information on hpaste, see http://hpaste.org"
         (url-request-extra-headers nil)
         (url-mime-accept-string "*/*")
         (url (url-generic-parse-url
-              (format "http://hpaste.org/%s/0/plain" id))))
+	      (format "http://hpaste.org/raw/%s" id))))
     (setq hpaste-buffer (url-retrieve-synchronously url))
    (setq hpaste-last-paste-id id)
 
      (with-current-buffer hpaste-buffer
        (progn
          (set-visited-file-name (format "hpaste #%s" id))
+	 (goto-char (point-min))
          (search-forward-regexp "\n\n")
          (delete-region (point-min) (point))
          (set-buffer-modified-p nil)
