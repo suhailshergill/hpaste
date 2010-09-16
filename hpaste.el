@@ -20,6 +20,7 @@
   "If non-NIL, don't send a title to the server."
   :type '(boolean)
   :group 'hpaste)
+
 (defcustom hpaste-announce 'ask
   "Whether to announce the paste in the #haskell channel on
 Freenode. If ALWAYS, then announce every time. If ASK, then
@@ -27,6 +28,17 @@ prompt every time. If NEVER, then never announce."
   :type '(choice (const :tag "Always announce" always)
                  (const :tag "Ask each time" ask) 
                  (const :tag "Never announce" never))
+  :group 'hpaste)
+
+(defcustom hpaste-channel 0
+  "The channel to use for making announcements. Specifying 0, No
+Channel, has the effect of having your post not announced ever,
+regardless of the setting of `hpaste-announce'. There is
+currently no prompting for which channel to announce to, so
+beware."
+  :type '(choice (const :tag "No channel" 0)
+		 (const :tag "#haskell" 1)
+		 (const :tag "#xmonad" 2))
   :group 'hpaste)
  
 (defvar hpaste-last-paste-id nil
@@ -36,7 +48,7 @@ prompt every time. If NEVER, then never announce."
   "Callback that runs after a paste is made. Messages the user
 and tell them that everything went smoothly, and save the paste
 ID for use as a default ID for annotations."
-  (message "Paste successful: " (cadr redirect))
+  (message "Paste successful: " (redirect))
   (kill-new (format (cadr redirect)))
   (if (eq (car redirect) ':redirect)
       (progn 
@@ -58,42 +70,58 @@ interface)."
                 "Paste to annotate: "))
              (input (read-from-minibuffer prompt)))
         (if (> (length input) 0) input hpaste-last-paste-id))))
+
  
-(defun hpaste-paste-region (beg end)
+(defun hpaste-paste-region (beg end) 
   "Send the region to the hpaste server specified in
 `hpaste-server'. Use the nick in `hpaste-default-nick', or prompt
 for one if that is NIL. You can still appear as (anonymous) by
 just not filling out a nick when prompted (just hit RET). Prompt
 for a title, unless `hpaste-blank-title' is non-NIL, in which
-case just send a blank title. Pastes will be announced in
-#haskell on Freenode according to `hpaste-announce', see the
-docstring of that variable for more information.
+case just send a blank title. Pastes will be announced on
+Freenode in the channel as specified in `hpaste-channel', per the
+value of `hpaste-announce'. See the docstring of those variables
+for more information.
+
+This function does not currently implement the selection of
+source code language as is available on hpaste.
  
 For more information on hpaste, see http://hpaste.org"
   (interactive "r")
   (let* ((nick (or hpaste-default-nick (read-from-minibuffer "Nick: ")))
          (title (if hpaste-blank-title "" (read-from-minibuffer "Title: ")))
          (annot-id (hpaste-prompt-for-annotate))
-         (announce (if (or (eq hpaste-announce 'always)
-                           (and (eq hpaste-announce 'ask)
-                                (y-or-n-p "Announce paste? ")))
-                       "&announce=true"
-                     ""))
- 
-         (url (concat hpaste-server
-                      (if annot-id (concat "/annotate/" annot-id)
-                        "/new")))
+         (announce (or (eq hpaste-announce 'always)
+		       (and (eq hpaste-announce 'ask)
+			    (y-or-n-p "Announce paste? "))))
+
+         (url (concat hpaste-server "/control"))
          (url-request-method "POST")
          (url-request-extra-headers
           '(("Content-Type" . "application/x-www-form-urlencoded")))
          (url-mime-accept-string "*/*")
-         (url-request-data
-          (format "content=%s&nick=%s&title=%s%s&x=0&y=0\r\n"
-                  (url-hexify-string (buffer-substring-no-properties beg end))
-                  (url-hexify-string nick)
-                  (url-hexify-string title)
-                  announce)))
+         (url-request-data (concat 
+			    (if annot-id
+				(format "annotation_of=%s&" annot-id)
+			      "") 
+			    (format "fval[1]=%s&fval[2]=%s&fval[3]=0&fval[4]=%d&fval[5]=%s&submit=true\r\n" 
+				    (url-hexify-string title)
+				    (url-hexify-string nick)
+				    (if announce hpaste-channel 0)
+				    (url-hexify-string (buffer-substring-no-properties beg end))))))
+
     (url-retrieve url 'hpaste-after-paste)))
+
+;; new hpaste.org form fields
+;;
+;; fval[1] = Title:, String
+;; fval[2] = Author:, String
+;; fval[3]*= Language, Int 0=no language, 1=C, 2=Haskell, 3=JavaScrip, 4=OCaml, 5=Perl, 6=Python
+;; fval[4] = Channel: Int 0=no channel, 1=#haskell 2=#xmonad
+;; fval[5] = Paste; String
+;;
+;; * already out of date!
+
 
 (defun hpaste-get-paste (id)
   "Fetch the contents of the paste from hpaste into a new buffer."
