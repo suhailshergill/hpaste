@@ -1,9 +1,17 @@
 ;;; hpaste.el -- Integration with hpaste: http://hpaste.org.
  
-;; Author: David House <dmhouse@gmail.com>
+;; Authors: David House <dmhouse@gmail.com>, 
+;;          Andrew Sackville-West <andrew@swclan.homelinux.org>,
+;;          and others.
+;;
+;; 
+;; Version 1.1 -- 16 Sep, 2010:
+;;   fix hpaste-get-paste and hpaste-paste-region to handle new hpaste.org
+;; 
 ;; Created: 14th April 2007
 ;; Version: 1.0
 ;; License: GPL
+
  
 (require 'url)
  
