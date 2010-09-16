@@ -48,14 +48,18 @@ beware."
   "Callback that runs after a paste is made. Messages the user
 and tell them that everything went smoothly, and save the paste
 ID for use as a default ID for annotations."
-  (message "Paste successful: " (redirect))
-  (kill-new (format (cadr redirect)))
-  (if (eq (car redirect) ':redirect)
-      (progn 
-        (setq url (cadr redirect))
-        (string-match "/\\([0-9]*\\)\\(#.*\\)?$" url)
-        (let ((id (match-string 1 url)))
-          (if id (setq hpaste-last-paste-id id))))))
+  (if redirect
+      (progn
+	(message "Paste successful: %s" (cadr redirect))
+	(kill-new (format (cadr redirect)))
+	(if (eq (car redirect) ':redirect)
+	    (progn 
+	      (setq url (cadr redirect))
+;;	      (string-match "/\\([0-9]*\\)\\(#.*\\)?$" url) ;; original regex
+	      (string-match ".*/\\([0-9]*\\)/.*$" url) ;; a hack of a regex 
+	      (let ((id (match-string 1 url)))
+		(if id (setq hpaste-last-paste-id id))))))
+    (message %s "No result from server.")))
  
 (defun hpaste-prompt-for-annotate ()
   "Ask the user whether they want to send the paste as an
