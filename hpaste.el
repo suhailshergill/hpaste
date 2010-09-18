@@ -13,9 +13,13 @@
 ;; License: GPL
 
  
+;; Require
 (require 'url)
+
+;; Definitions
  
 (defgroup hpaste nil "Integration with the hpaste pastebin")
+
 (defcustom hpaste-server "http://hpaste.org" 
   "Base URL for the hpaste server."
   :type '(string)
@@ -38,6 +42,18 @@ prompt every time. If NEVER, then never announce."
                  (const :tag "Never announce" never))
   :group 'hpaste)
 
+(defcustom hpaste-lang 'ask
+  "Whether to set the language tag in the paste. If ASK, then
+  prompt every time. If ALWAYS, then the value of
+  `hpaste-default-lang' will be silently and automatically
+  used. If NEVER, then the paste will never be tagged with a
+  language."
+  :type '(choice (const :tag "Always tag the language" always)
+		 (const :tag "Ask whether to tag the language" ask)
+		 (const :tag "Never tag the language" never))
+  :group 'hpaste)
+
+
 (defcustom hpaste-channel 0
   "The channel to use for making announcements. Specifying 0, No
 Channel, has the effect of having your post not announced ever,
@@ -48,6 +64,51 @@ beware."
 		 (const :tag "#haskell" 1)
 		 (const :tag "#xmonad" 2))
   :group 'hpaste)
+
+(defconst hpaste-langs-alist '(("None" . 0)
+			       ("Bash/shell" . 1)
+			       ("C" . 2)
+			       ("C++" . 3)
+			       ("Common Lisp" . 4)
+			       ("D" . 5)
+			       ("Erlang" . 6)
+			       ("Haskell" . 7)
+			       ("Java" . 8)
+			       ("JavaScript" . 9)
+			       ("Literate Haskell" . 10)
+			       ("Lua" . 11)
+			       ("Objective-C" . 12)
+			       ("OCaml" . 13)
+			       ("Perl" . 14)
+			       ("Perl" . 15) ;; sic
+			       ("Prolog" . 16)
+			       ("Python" . 17)
+			       ("Ruby" . 18)
+			       ("Scala" . 19)
+			       ("XML" . 20))
+  "The list of available language tags on hpaste.org. This list
+  is subject to change without notice, possibly causing erroneous
+  tagging. This should really be replaced with some function to
+  actually parse the list of languages from the html...")
+
+(defcustom hpaste-default-lang 0
+  "The default language tag to use when pasting. If `hpaste-lang'
+  is set to ALWAYS, then this value will be used silently. If
+  `hpaste-lang' is set to ASK, the user selects yes, and this is
+  set to None, 0, then the user will be prompted for a language
+  to use. The user can always select 0, None, again to force no
+  language tag."
+  :type (cons 'choice (mapcar (lambda (x)
+				(list 'const ':tag (car x)
+				      (cdr x)))
+			      hpaste-langs-alist))
+  :group 'hpaste)
+
+(defun hpaste-prompt-for-lang ()
+   (or (cdr (assoc
+	     (completing-read (format "Enter the language [%s]:" hpaste-default-lang) 
+			      hpaste-langs-alist) hpaste-langs-alist))
+       hpaste-default-lang))
  
 (defvar hpaste-last-paste-id nil
   "Numerical ID of the last paste.")
