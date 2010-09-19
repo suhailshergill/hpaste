@@ -108,7 +108,7 @@ beware."
    (or (cdr (assoc
 	     (completing-read (format "Enter the language [%s]:" hpaste-default-lang) 
 			      hpaste-langs-alist) hpaste-langs-alist))
-       hpaste-default-lang))
+       hpaste-default-lang)) 
  
 (defvar hpaste-last-paste-id nil
   "Numerical ID of the last paste.")
@@ -128,7 +128,7 @@ ID for use as a default ID for annotations."
 	      (string-match ".*/\\([0-9]*\\)/.*$" url) ;; a hack of a regex 
 	      (let ((id (match-string 1 url)))
 		(if id (setq hpaste-last-paste-id id))))))
-    (message %s "No result from server.")))
+    (message "%s" "No result from server.")))
  
 (defun hpaste-prompt-for-annotate ()
   "Ask the user whether they want to send the paste as an
@@ -177,13 +177,13 @@ For more information on hpaste, see http://hpaste.org"
 			    (if annot-id
 				(format "annotation_of=%s&" annot-id)
 			      "") 
-			    (format "fval[1]=%s&fval[2]=%s&fval[3]=0&fval[4]=%d&fval[5]=%s&submit=true\r\n" 
+			    (format "fval[1]=%s&fval[2]=%s&fval[3]=0&fval[4]=%d&fval[5]=%s&email=&submit=true\r\n" 
 				    (url-hexify-string title)
 				    (url-hexify-string nick)
 				    (if announce hpaste-channel 0)
 				    (url-hexify-string (buffer-substring-no-properties beg end))))))
-
-    (url-retrieve url 'hpaste-after-paste)))
+(message "%s" url-request-data)))
+;;    (url-retrieve url 'hpaste-after-paste)))
 
 ;; new hpaste.org form fields
 ;;
