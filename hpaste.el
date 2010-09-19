@@ -4,8 +4,11 @@
 ;;          Andrew Sackville-West <andrew@swclan.homelinux.org>,
 ;;          and others.
 ;;
+;; Change Log:
 ;; 
-;; Version 1.1 -- 16 Sep, 2010:
+;; 1.2 -- 18 Sep, 2010:
+;;   implement language tagging
+;; 1.1 -- 16 Sep, 2010:
 ;;   fix hpaste-get-paste and hpaste-paste-region to handle new hpaste.org
 ;; 
 ;; Created: 14th April 2007
