@@ -182,8 +182,8 @@ For more information on hpaste, see http://hpaste.org"
 				    (url-hexify-string nick)
 				    (if announce hpaste-channel 0)
 				    (url-hexify-string (buffer-substring-no-properties beg end))))))
-(message "%s" url-request-data)))
-;;    (url-retrieve url 'hpaste-after-paste)))
+
+    (url-retrieve url 'hpaste-after-paste)))
 
 ;; new hpaste.org form fields
 ;;
