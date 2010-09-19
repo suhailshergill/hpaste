@@ -109,6 +109,21 @@ beware."
 	     (completing-read (format "Enter the language [%s]:" hpaste-default-lang) 
 			      hpaste-langs-alist) hpaste-langs-alist))
        hpaste-default-lang)) 
+
+;; this is sort of an absurdley complex set of conditions... but it works
+(defun hpaste-paste-lang ()
+  "Function to determine the language to use for the current
+paste, if any. Makes use of `hpaste-default-lang' and
+`hpaste-lang' to figure out what to do. See the docstrings for
+those variable to get an understanding."
+  (cond ((eq hpaste-lang 'always) hpaste-default-lang)
+	((eq hpaste-lang 'ask) (if (y-or-n-p "Show language?")
+				   (if (eq hpaste-default-lang 0)
+				       (hpaste-prompt-for-lang)
+				     hpaste-default-lang)
+				 0))
+	(t 0))) ;; the 'never case...
+
  
 (defvar hpaste-last-paste-id nil
   "Numerical ID of the last paste.")
@@ -163,6 +178,7 @@ For more information on hpaste, see http://hpaste.org"
   (interactive "r")
   (let* ((nick (or hpaste-default-nick (read-from-minibuffer "Nick: ")))
          (title (if hpaste-blank-title "" (read-from-minibuffer "Title: ")))
+	 (language (hpaste-paste-lang))
          (annot-id (hpaste-prompt-for-annotate))
          (announce (or (eq hpaste-announce 'always)
 		       (and (eq hpaste-announce 'ask)
@@ -177,9 +193,10 @@ For more information on hpaste, see http://hpaste.org"
 			    (if annot-id
 				(format "annotation_of=%s&" annot-id)
 			      "") 
-			    (format "fval[1]=%s&fval[2]=%s&fval[3]=0&fval[4]=%d&fval[5]=%s&email=&submit=true\r\n" 
+			    (format "fval[1]=%s&fval[2]=%s&fval[3]=%d&fval[4]=%d&fval[5]=%s&email=&submit=true\r\n" 
 				    (url-hexify-string title)
 				    (url-hexify-string nick)
+				    language
 				    (if announce hpaste-channel 0)
 				    (url-hexify-string (buffer-substring-no-properties beg end))))))
 
@@ -189,11 +206,11 @@ For more information on hpaste, see http://hpaste.org"
 ;;
 ;; fval[1] = Title:, String
 ;; fval[2] = Author:, String
-;; fval[3]*= Language, Int 0=no language, 1=C, 2=Haskell, 3=JavaScrip, 4=OCaml, 5=Perl, 6=Python
+;; fval[3] = Language, see hpaste-lang-alist
 ;; fval[4] = Channel: Int 0=no channel, 1=#haskell 2=#xmonad
 ;; fval[5] = Paste; String
 ;;
-;; * already out of date!
+
 
 
 (defun hpaste-get-paste (id)
