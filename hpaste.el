@@ -83,12 +83,11 @@ beware."
 			       ("Objective-C" . 12)
 			       ("OCaml" . 13)
 			       ("Perl" . 14)
-			       ("Perl" . 15) ;; sic
-			       ("Prolog" . 16)
-			       ("Python" . 17)
-			       ("Ruby" . 18)
-			       ("Scala" . 19)
-			       ("XML" . 20))
+			       ("Prolog" . 15)
+			       ("Python" . 16)
+			       ("Ruby" . 17)
+			       ("Scala" . 18)
+			       ("XML" . 19))
   "The list of available language tags on hpaste.org. This list
   is subject to change without notice, possibly causing erroneous
   tagging. This should really be replaced with some function to
