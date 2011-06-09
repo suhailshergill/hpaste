@@ -286,7 +286,7 @@ For more information on hpaste, see http://hpaste.org"
 		       (and (eq hpaste-announce 'ask)
 			    (y-or-n-p "Announce paste? "))))
 
-         (url (concat hpaste-server "/control"))
+         (url (concat hpaste-server "/new"))
          (url-request-method "POST")
          (url-request-extra-headers
           '(("Content-Type" . "application/x-www-form-urlencoded")))
@@ -295,7 +295,8 @@ For more information on hpaste, see http://hpaste.org"
 			    (if annot-id
 				(format "annotation_of=%s&" annot-id)
 			      "") 
-			    (format "fval[1]=%s&fval[2]=%s&fval[3]=%d&fval[4]=%d&fval[5]=%s&email=&submit=true\r\n" 
+;;			    (format "fval[1]=%s&fval[2]=%s&fval[3]=%d&fval[4]=%d&fval[5]=%s&email=&submit=true\r\n" 		
+	    (format "title=%s&author=%s&language=%d&channel=%d&paste=%s&email=&submit=true\r\n" 
 				    (url-hexify-string title)
 				    (url-hexify-string nick)
 				    language
